@@ -56,7 +56,8 @@ See `QD_MTS_Platform_Documentation.pdf` for:
 
 ## 🎨 Gallery
 
-*(Add screenshots here: Phase 1 ranking, 3D model with particles, multi-channel panel, etc.)*
+<img src="Media/Hippocampus_Simulator.png" width="400"> <img src="Media/Targeting_Strategy.png" width="400">
+
 
 ## 🔮 Future Directions
 
