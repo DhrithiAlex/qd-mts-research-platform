@@ -56,7 +56,15 @@ See `QD_MTS_Platform_Documentation.pdf` for:
 
 ## 🎨 Gallery
 
-<img src="Media/Hippocampus_Simulator.png" width="400"> <img src="Media/Targeting_Strategy.png" width="400">
+### Project Screenshots
+
+<p align="center">
+  <img src="Media/Hippocampus_Simulated.png" alt="Hippocampus Simulator" width="600">
+  <br><br>
+  <img src="Media/Material_Optimizer.png" alt="Material Optimizer" width="600">
+  <br><br>
+  <img src="Media/Targeting_Strategy.png" alt="Targeting Strategy" width="600">
+</p>
 
 
 ## 🔮 Future Directions
