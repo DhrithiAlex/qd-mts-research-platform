@@ -4,7 +4,7 @@
 
 An interactive computational research platform exploring engineered quantum dot nanoparticles to enhance the accuracy of MTS diagnosis, hippocampal subfield mapping, and fluorescence-guided surgical planning in drug-resistant temporal lobe epilepsy.
 
-![Media](Github Preview.png)
+![](Github Preview.png)
 
 ## 🎯 Overview
 
