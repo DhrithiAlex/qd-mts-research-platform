@@ -42,7 +42,7 @@ This prototype demonstrates how **quantum dots (QDs)** — with their tunable NI
 2. Open `MTS_QD_Research_Platform.html` in any modern browser (Chrome/Edge/Firefox recommended)
 3. No installation or server required
 
-**Live Demo**: [Open Simulator](https://yourusername.github.io/qd-mts-research-platform/MTS_QD_Research_Platform.html) (after enabling GitHub Pages)
+**Live Demo**: [Open Simulator](https://DhrithiAlex.github.io/qd-mts-research-platform/MTS_QD_Research_Platform.html)
 
 ## 📚 Scientific Background
 
