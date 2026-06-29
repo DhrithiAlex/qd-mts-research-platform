@@ -30,6 +30,12 @@ This prototype demonstrates how **quantum dots (QDs)** — with their tunable NI
   - Real-time diagnostic readout  
   - Educational tool with scientific grounding
 
+## 📚 Research Documentation
+
+For a comprehensive scientific background, methodology, biomarker details, and clinical translation roadmap, see:
+
+**[RESEARCH.md](Research/RESEARCH.md)** — Detailed project documentation and scientific rationale.
+
 ## 🛠️ Tech Stack
 
 - **Core**: HTML5, CSS3 (Custom Properties, Grid/Flexbox), Vanilla JavaScript
@@ -45,6 +51,7 @@ This prototype demonstrates how **quantum dots (QDs)** — with their tunable NI
 **Live Demo**: [Open the Simulator](https://dhrithialex.github.io/qd-mts-research-platform/MTS_QD_Research_Platform.html)
 
 ## 📚 Scientific Background
+
 
 See `QD_MTS_Platform_Documentation.pdf` for:
 - MTS pathology and ILAE classification
