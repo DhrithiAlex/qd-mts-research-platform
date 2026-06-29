@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QD-MTS Research Platform — Mesial Temporal Sclerosis Diagnosis</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface2: #1c2128;
+  --surface3: #21262d;
+  --border: #30363d;
+  --accent: #58a6ff;
+  --accent2: #3fb950;
+  --accent3: #d29922;
+  --accent4: #f85149;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --radius: 8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;line-height:1.6;}
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--muted);}
+
+/* ── HEADER ── */
+.site-header{
+  background:linear-gradient(135deg,#0a1829 0%,#0d1117 70%);
+  border-bottom:1px solid var(--border);
+  padding:18px 32px 0;
+  position:sticky;top:0;z-index:100;
+}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.header-top .brand{display:flex;align-items:center;gap:14px;}
+.brand-badge{background:rgba(88,166,255,.15);border:1px solid rgba(88,166,255,.35);color:var(--accent);font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:3px 10px;border-radius:20px;}
+.brand h1{font-size:18px;font-weight:700;color:#fff;line-height:1.2;}
+.brand p{font-size:11px;color:var(--muted);}
+.prototype-tag{font-size:10px;color:var(--muted);border:1px solid var(--border);padding:3px 10px;border-radius:20px;}
+
+/* ── PHASE TABS ── */
+.phase-tabs{display:flex;gap:0;}
+.phase-tab{
+  padding:10px 22px;
+  border:none;background:transparent;
+  color:var(--muted);font-size:13px;font-weight:600;
+  cursor:pointer;border-bottom:2px solid transparent;
+  transition:all .2s;white-space:nowrap;
+  display:flex;align-items:center;gap:8px;
+}
+.phase-tab:hover{color:var(--text);}
+.phase-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.phase-num{
+  width:20px;height:20px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:800;
+  background:rgba(88,166,255,.15);color:var(--accent);
+}
+.phase-tab.active .phase-num{background:var(--accent);color:#fff;}
+
+/* ── PHASE PANELS ── */
+.phase-panel{display:none;}
+.phase-panel.active{display:block;}
+
+/* ── TWO-COLUMN LAYOUT ── */
+.two-col{display:grid;grid-template-columns:300px 1fr;min-height:calc(100vh - 110px);}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:20px 18px;overflow-y:auto;}
+.main{padding:22px;overflow-y:auto;}
+
+/* ── SECTION TITLE ── */
+.sec-title{
+  font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.09em;color:var(--muted);margin-bottom:12px;
+  display:flex;align-items:center;gap:8px;
+}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* ── CARD ── */
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:14px;}
+.card h3{font-size:12px;font-weight:600;margin-bottom:12px;color:var(--text);}
+
+/* ── MODE TOGGLE ── */
+.mode-toggle{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:3px;margin-bottom:14px;gap:3px;}
+.mode-btn{flex:1;padding:5px 8px;border:none;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;background:transparent;color:var(--muted);}
+.mode-btn.active{background:var(--accent);color:#fff;}
+
+/* ── PARAM SLIDERS ── */
+.param-row{margin-bottom:12px;}
+.param-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:12px;}
+.param-name{color:var(--text);font-weight:500;}
+.param-val{background:rgba(88,166,255,.15);color:var(--accent);padding:1px 7px;border-radius:10px;font-size:11px;font-weight:600;min-width:28px;text-align:center;}
+.param-desc{font-size:10px;color:var(--muted);margin-bottom:4px;}
+input[type=range]{width:100%;height:4px;-webkit-appearance:none;appearance:none;background:var(--border);border-radius:2px;outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid var(--bg);}
+
+/* ── RANK TABLE ── */
+.rank-table{width:100%;border-collapse:collapse;}
+.rank-table th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);}
+.rank-table td{padding:9px 10px;border-bottom:1px solid rgba(48,54,61,.5);vertical-align:middle;font-size:12px;}
+.rank-table tr:last-child td{border-bottom:none;}
+.rank-table tr{cursor:pointer;transition:background .15s;}
+.rank-table tr:hover td{background:rgba(88,166,255,.05);}
+.rank-table tr.selected td{background:rgba(88,166,255,.1);}
+.rank-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin:0 auto;}
+.score-bar-wrap{display:flex;align-items:center;gap:7px;}
+.score-bar{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.score-bar-fill{height:100%;border-radius:3px;transition:width .4s ease;}
+.score-num{font-size:11px;font-weight:700;min-width:30px;text-align:right;}
+.tox-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px;}
+
+/* ── DETAIL PANEL ── */
+.detail-panel{display:none;margin-top:18px;}
+.detail-panel.visible{display:block;}
+.detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.detail-stat{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;}
+.detail-stat .dval{font-size:18px;font-weight:700;color:var(--accent);margin-bottom:2px;}
+.detail-stat .dlbl{font-size:10px;color:var(--muted);}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.chart-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;}
+.chart-box h3{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;}
+.canvas-wrap{position:relative;width:100%;height:220px;}
+.canvas-wrap canvas{position:absolute!important;top:0;left:0;width:100%!important;height:100%!important;}
+.spec-wrap{position:relative;width:100%;height:150px;}
+.spec-wrap canvas{position:absolute!important;top:0;left:0;width:100%!important;height:100%!important;}
+.note-box{font-size:12px;color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:14px;line-height:1.7;}
+
+/* ── SPECTRUM ── */
+.spectrum-wrap{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:18px;}
+.spectrum-wrap h3{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.spec-legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
+.spec-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);cursor:pointer;padding:2px 8px;border-radius:4px;border:1px solid transparent;transition:all .15s;}
+.spec-item.active{border-color:var(--border);background:var(--surface);}
+.spec-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.nir-note{font-size:10px;color:rgba(255,100,100,.7);text-align:center;margin-top:5px;}
+.rec-banner{display:none;background:linear-gradient(135deg,rgba(63,185,80,.1),rgba(88,166,255,.1));border:1px solid rgba(63,185,80,.3);border-radius:var(--radius);padding:12px 14px;margin-bottom:16px;}
+.rec-banner.visible{display:block;}
+.rec-title{font-size:10px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;}
+
+/* ── PHASE 2 TARGETING ── */
+.p2-layout{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:22px;}
+.p2-full{padding:22px;}
+.selected-qd-card{background:linear-gradient(135deg,rgba(88,166,255,.08),rgba(63,185,80,.05));border:1px solid rgba(88,166,255,.3);border-radius:var(--radius);padding:16px;margin-bottom:18px;}
+.selected-qd-card .qd-title{font-size:16px;font-weight:700;margin-bottom:4px;}
+.selected-qd-card .qd-sub{font-size:12px;color:var(--muted);}
+.multicolor-panel{margin-top:4px;}
+.channel-row{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;background:var(--surface2);transition:border-color .2s;}
+.channel-row:hover{border-color:rgba(88,166,255,.3);}
+.ch-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;margin-top:2px;}
+.ch-body{flex:1;}
+.ch-title{font-size:13px;font-weight:600;margin-bottom:2px;}
+.ch-sub{font-size:11px;color:var(--muted);margin-bottom:5px;}
+.ch-tags{display:flex;flex-wrap:wrap;gap:5px;}
+.ch-tag{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;}
+.target-card{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px;}
+.target-card .mk-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.target-card .mk-role{font-size:11px;color:var(--accent);margin-bottom:5px;}
+.target-card .mk-desc{font-size:11px;color:var(--muted);line-height:1.5;}
+.tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;margin-right:4px;margin-top:4px;}
+.tag-h{background:rgba(248,81,73,.2);color:#f85149;border:1px solid rgba(248,81,73,.3);}
+.tag-m{background:rgba(210,153,34,.2);color:#d29922;border:1px solid rgba(210,153,34,.3);}
+.tag-l{background:rgba(63,185,80,.2);color:#3fb950;border:1px solid rgba(63,185,80,.3);}
+.target-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* ── PHASE 3 THREE.JS ── */
+.p3-layout{display:grid;grid-template-columns:1fr 340px;height:calc(100vh - 110px);}
+.three-wrap{position:relative;background:#060c14;overflow:hidden;}
+#threeCanvas{display:block;width:100%;height:100%;}
+.three-overlay{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;}
+.three-label{
+  position:absolute;pointer-events:none;
+  background:rgba(13,17,23,.85);border:1px solid rgba(48,54,61,.8);
+  border-radius:5px;padding:3px 8px;font-size:11px;font-weight:600;
+  color:var(--text);transform:translate(-50%,-50%);white-space:nowrap;
+  transition:all .15s;
+}
+.three-label .sev-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;}
+.three-label.highlighted{border-color:rgba(255,200,100,.6);background:rgba(40,30,10,.9);color:#ffd700;}
+.three-tip{position:absolute;top:14px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--muted);background:rgba(13,17,23,.7);padding:4px 12px;border-radius:20px;pointer-events:none;}
+.three-controls-hint{position:absolute;bottom:14px;left:14px;font-size:10px;color:var(--muted);}
+
+.p3-sidebar{background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;padding:18px;}
+.ilae-buttons{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+.ilae-btn{padding:5px 10px;border:1px solid var(--border);border-radius:5px;background:transparent;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;}
+.ilae-btn:hover{border-color:var(--accent);color:var(--accent);}
+.ilae-btn.active{background:rgba(88,166,255,.15);border-color:var(--accent);color:var(--accent);}
+.sf-row{margin-bottom:10px;}
+.sf-label-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;font-size:11px;}
+.sf-name{font-weight:600;}
+.sf-sev{font-size:10px;padding:1px 7px;border-radius:10px;font-weight:600;}
+input[type=range].sf-slider{accent-color:#58a6ff;}
+
+.qdoverlay-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:12px;}
+.qdoverlay-card h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px;}
+.qd-chip{display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;cursor:pointer;margin-bottom:6px;transition:all .15s;}
+.qd-chip:hover{border-color:rgba(88,166,255,.3);}
+.qd-chip.active{border-color:var(--accent);background:rgba(88,166,255,.1);}
+.qd-chip-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.qd-chip-name{font-size:12px;font-weight:600;flex:1;}
+.qd-chip-em{font-size:10px;color:var(--muted);}
+.diag-readout{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;}
+.diag-readout h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px;}
+.diag-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(48,54,61,.5);font-size:12px;}
+.diag-row:last-child{border-bottom:none;}
+.diag-sf{font-weight:600;}
+.diag-badge{padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;}
+
+/* ── FOOTER ── */
+footer{border-top:1px solid var(--border);padding:12px 32px;display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:10px;}
+
+@media(max-width:900px){
+  .two-col,.p3-layout,.p2-layout{grid-template-columns:1fr;}
+  .chart-grid,.detail-grid{grid-template-columns:1fr;}
+  .target-grid{grid-template-columns:1fr;}
+  .site-header{padding:14px 16px 0;}
+  .phase-tab span{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════════════════════════════════════ -->
+<div class="site-header">
+  <div class="header-top">
+    <div class="brand">
+      <div>
+        <div class="brand-badge">Research Prototype · v0.2</div>
+        <h1>QD-MTS Research Platform</h1>
+        <p>Quantum Dot–assisted Mesial Temporal Sclerosis Diagnostic Suite</p>
+      </div>
+    </div>
+    <div class="prototype-tag">Not for clinical use · Computational model only</div>
+  </div>
+  <div class="phase-tabs">
+    <button class="phase-tab active" onclick="setPhase('p1')">
+      <span class="phase-num">1</span>
+      <span>Material Optimizer</span>
+    </button>
+    <button class="phase-tab" onclick="setPhase('p2')">
+      <span class="phase-num">2</span>
+      <span>Targeting Strategy</span>
+    </button>
+    <button class="phase-tab" onclick="setPhase('p3')">
+      <span class="phase-num">3</span>
+      <span>3D Hippocampal Model</span>
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     PHASE 1 — MATERIAL OPTIMIZER
+══════════════════════════════════════════════════════════════════════════ -->
+<div id="p1" class="phase-panel active">
+<div class="two-col">
+  <div class="sidebar">
+    <div class="sec-title">Diagnostic Mode</div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" data-mode="exvivo" onclick="setMode('exvivo')">Ex Vivo</button>
+      <button class="mode-btn" data-mode="invivo" onclick="setMode('invivo')">In Vivo</button>
+    </div>
+    <p style="font-size:11px;color:var(--muted);margin-bottom:16px;line-height:1.55;">
+      <strong style="color:var(--text)">Ex vivo</strong> — post-surgical hippocampal tissue. Lower BBB requirement, full histology access.<br><br>
+      <strong style="color:var(--text)">In vivo</strong> — living patient. BBB penetration and biocompatibility become critical.
+    </p>
+    <div class="sec-title">Parameter Weights</div>
+    <div class="card" style="padding:12px;">
+      <div id="p1sliders"></div>
+    </div>
+    <div class="card" style="padding:11px;font-size:11px;color:var(--muted);line-height:1.6;">
+      <strong style="color:var(--text)">Tissue window</strong> — brain tissue is most transparent in NIR-I (650–900 nm). Emissions &lt;600 nm overlap with autofluorescence.<br><br>
+      <strong style="color:var(--text)">Biocompatibility</strong> — Cd²⁺ leaching causes neuronal apoptosis at nanomolar concentrations in neural tissue.
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="sec-title">Ranked Candidates</div>
+    <div id="p1recBanner" class="rec-banner">
+      <div class="rec-title">Top Recommendation</div>
+      <div id="p1recText" style="font-size:13px;color:var(--text);"></div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table class="rank-table">
+        <thead><tr>
+          <th style="width:42px;text-align:center;">#</th>
+          <th>QD Material</th>
+          <th>Emission</th>
+          <th>Toxicity</th>
+          <th style="min-width:150px;">Score</th>
+        </tr></thead>
+        <tbody id="p1rankBody"></tbody>
+      </table>
+    </div>
+    <div id="p1detail" class="detail-panel">
+      <div class="sec-title">Selected — <span id="p1detName" style="color:var(--accent);text-transform:none;letter-spacing:0;font-weight:700;"></span></div>
+      <div class="detail-grid" id="p1detStats"></div>
+      <div class="chart-grid">
+        <div class="chart-box"><h3>Parameter Profile</h3><div class="canvas-wrap"><canvas id="p1radar"></canvas></div></div>
+        <div class="chart-box"><h3>vs. All Candidates</h3><div class="canvas-wrap"><canvas id="p1bar"></canvas></div></div>
+      </div>
+      <div class="note-box" id="p1notes"></div>
+    </div>
+    <div class="spectrum-wrap">
+      <h3>Emission Spectrum Comparison</h3>
+      <div class="spec-legend" id="p1specLeg"></div>
+      <div class="spec-wrap"><canvas id="p1spec"></canvas></div>
+      <div class="nir-note">▲ NIR-I tissue window (650–900 nm) highlighted</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     PHASE 2 — TARGETING STRATEGY
+══════════════════════════════════════════════════════════════════════════ -->
+<div id="p2" class="phase-panel">
+<div class="p2-full">
+
+  <div id="p2qdSummary" class="selected-qd-card" style="display:none;">
+    <div class="qd-title" id="p2qdName" style="color:var(--accent)">—</div>
+    <div class="qd-sub" id="p2qdSub">Select a QD material in Phase 1 to see targeting recommendations</div>
+    <div id="p2qdStats" style="display:flex;gap:14px;margin-top:10px;flex-wrap:wrap;"></div>
+  </div>
+  <div id="p2noSel" style="background:var(--surface2);border:1px dashed var(--border);border-radius:var(--radius);padding:18px;text-align:center;color:var(--muted);font-size:13px;margin-bottom:18px;">
+    ← Go to <strong style="color:var(--accent)">Phase 1</strong> and click a QD material to load targeting recommendations here.
+  </div>
+
+  <div class="p2-layout" style="padding:0;gap:22px;">
+    <div>
+      <div class="sec-title">Multi-Colour Labelling Strategy</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6;">
+        MTS involves simultaneous dysregulation of multiple cell populations. A 3–4 channel QD panel allows co-visualisation of all major pathological changes in a single tissue section — impossible with conventional organic dyes due to photobleaching.
+      </p>
+      <div id="p2channels"></div>
+    </div>
+    <div>
+      <div class="sec-title">MTS Biomarker Reference</div>
+      <div class="target-grid" id="p2biomarkers"></div>
+    </div>
+  </div>
+
+  <div style="margin-top:22px;">
+    <div class="sec-title">Conjugation Protocol Notes</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px;">EDC/NHS Coupling</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6;">Covalent conjugation of antibodies (GFAP, NeuN, NPY) to carboxyl-functionalized QDs. QY loss ~10–20%. Optimal for InP/ZnS and CuInS₂/ZnS. NHS ester intermediate at pH 7.2.</div>
+      </div>
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--accent3);margin-bottom:8px;">Streptavidin–Biotin</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6;">High-affinity (K_d ~10⁻¹⁵ M) non-covalent linkage. Biotinylated primary antibody + SA-coated QD. Larger hydrodynamic size (~25 nm) limits BBB use. Excellent for ex vivo multiplex panels.</div>
+      </div>
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:var(--accent2);margin-bottom:8px;">RVG-29 Peptide (In Vivo)</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6;">29-amino-acid peptide derived from rabies virus glycoprotein. Binds nAChR on BBB endothelium. Conjugated via thiol-maleimide chemistry to PEG-coated Si QDs or Ag₂S. Enables hippocampal targeting in vivo.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     PHASE 3 — 3D HIPPOCAMPAL MODEL
+══════════════════════════════════════════════════════════════════════════ -->
+<div id="p3" class="phase-panel">
+<div class="p3-layout">
+
+  <!-- Three.js canvas area -->
+  <div class="three-wrap" id="threeWrap">
+    <canvas id="threeCanvas"></canvas>
+    <div class="three-overlay" id="threeOverlay"></div>
+    <div class="three-tip">Coronal cross-section · Right hippocampus</div>
+    <div class="three-controls-hint">Drag to rotate · Scroll to zoom</div>
+  </div>
+
+  <!-- P3 Sidebar -->
+  <div class="p3-sidebar">
+    <div class="sec-title">ILAE MTS Classification</div>
+    <div class="ilae-buttons" id="ilaeButtons"></div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:14px;line-height:1.5;" id="ilaeDesc"></div>
+
+    <div class="sec-title">Subfield Severity</div>
+    <div id="sfSliders"></div>
+
+    <div class="sec-title">QD Fluorescence Overlay</div>
+    <div class="qdoverlay-card">
+      <h4>Active QD</h4>
+      <div id="p3qdList"></div>
+    </div>
+
+    <div class="sec-title">Diagnostic Readout</div>
+    <div class="diag-readout">
+      <h4>Subfield Assessment</h4>
+      <div id="diagReadout"></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<footer>
+  <span>QD-MTS Research Platform · v0.2 · 2026</span>
+  <span>Prototype — not for clinical diagnostic use</span>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════════════════════════════ -->
+<script>
+// ──────────────────────────────────────────────────────────────────────────────
+// DATA
+// ──────────────────────────────────────────────────────────────────────────────
+
+const QDS = [
+  { id:'inp', name:'InP / ZnS', short:'InP/ZnS', color:'#58a6ff',
+    emPeak:625, emRange:'500–750 nm', emMin:500, emMax:750,
+    size:'3–8 nm', sizePenalty:7, toxicity:'Low', toxScore:7, toxColor:'#3fb950', qy:65, bbb:7, photostab:7, conjugation:8,
+    exvivo:{emScore:7}, invivo:{emScore:8},
+    notes:'InP/ZnS is the leading cadmium-free alternative. Tunable emission into NIR-I, excellent antibody conjugation via EDC/NHS, and manageable BBB penetration with PEGylation. The benchmark candidate for ex vivo MTS multiplex panels.' },
+  { id:'cuins', name:'CuInS₂ / ZnS', short:'CuInS₂/ZnS', color:'#d29922',
+    emPeak:720, emRange:'550–950 nm', emMin:550, emMax:950,
+    size:'3–6 nm', sizePenalty:8, toxicity:'Low', toxScore:8, toxColor:'#3fb950', qy:50, bbb:8, photostab:7, conjugation:7,
+    exvivo:{emScore:9}, invivo:{emScore:9},
+    notes:'Broad NIR-I emission and exceptional biocompatibility. Excellent for deep tissue hippocampal imaging. Lower QY than CdSe but acceptable at tissue scale. Small core enables BBB penetration. Ideal for GFAP (astrogliosis) labelling.' },
+  { id:'ag2s', name:'Ag₂S', short:'Ag₂S', color:'#c0c0c0',
+    emPeak:1000, emRange:'800–1200 nm', emMin:800, emMax:1200,
+    size:'2–8 nm', sizePenalty:9, toxicity:'Low–Mod', toxScore:6, toxColor:'#d29922', qy:12, bbb:9, photostab:8, conjugation:6,
+    exvivo:{emScore:8}, invivo:{emScore:10},
+    notes:'NIR-II emission (1000–1200 nm) provides minimal tissue scattering for deep in vivo imaging. Small size = excellent BBB penetration. Requires InGaAs detector. Best candidate for future in vivo MTS mapping with RVG-29 peptide targeting.' },
+  { id:'si', name:'Silicon QDs', short:'Si QDs', color:'#a5d6ff',
+    emPeak:700, emRange:'500–900 nm', emMin:500, emMax:900,
+    size:'2–8 nm', sizePenalty:9, toxicity:'Very Low', toxScore:10, toxColor:'#3fb950', qy:35, bbb:8, photostab:6, conjugation:7,
+    exvivo:{emScore:8}, invivo:{emScore:9},
+    notes:'Biodegradable — metabolises to silicic acid, naturally present in brain tissue. NIR-I capable at 5–8 nm. The safest option for any in vivo work. Slightly lower QY is offset by exceptional safety. Best pairing with RVG-29 for BBB crossing.' },
+  { id:'carbon', name:'Carbon QDs', short:'CQDs', color:'#8b949e',
+    emPeak:460, emRange:'350–700 nm', emMin:350, emMax:700,
+    size:'1–8 nm', sizePenalty:9, toxicity:'Very Low', toxScore:10, toxColor:'#3fb950', qy:40, bbb:9, photostab:5, conjugation:7,
+    exvivo:{emScore:3}, invivo:{emScore:3},
+    notes:'Unrivalled biocompatibility and water solubility. Emission peak in blue-green (450–550 nm) is the main limitation — significant overlap with brain autofluorescence. Best used as drug/siRNA carrier or for glutamate/GABA biosensing rather than fluorescent imaging of hippocampal sclerosis.' },
+  { id:'gqd', name:'Graphene QDs', short:'GQDs', color:'#79c0ff',
+    emPeak:530, emRange:'400–700 nm', emMin:400, emMax:700,
+    size:'2–15 nm', sizePenalty:6, toxicity:'Very Low', toxScore:9, toxColor:'#3fb950', qy:25, bbb:7, photostab:6, conjugation:6,
+    exvivo:{emScore:4}, invivo:{emScore:4},
+    notes:'Excellent biocompatibility and rich surface chemistry. Emission in visible range limits tissue penetration. 2D structure increases effective size. Best suited for surface biosensing (EEG electrodes, glutamate detection) or as a supplementary carrier rather than primary imaging agent.' },
+  { id:'cdse', name:'CdSe / ZnS', short:'CdSe/ZnS', color:'#f78166',
+    emPeak:565, emRange:'480–650 nm', emMin:480, emMax:650,
+    size:'3–10 nm', sizePenalty:6, toxicity:'High', toxScore:2, toxColor:'#f85149', qy:80, bbb:4, photostab:9, conjugation:8,
+    exvivo:{emScore:5}, invivo:{emScore:2},
+    notes:'Research gold standard: highest QY (~85%) and photostability. Cd²⁺ leaching is a neurotoxin — contraindicated for any in vivo use. Acceptable only in sealed ex vivo fixed-tissue settings. Emission below NIR-I window limits tissue penetration. Reference standard only.' },
+];
+
+const PARAMS = [
+  { key:'em',    label:'Tissue Window (Emission)', desc:'Emission in 650–900 nm NIR-I band', defEx:8, defIn:9 },
+  { key:'qy',    label:'Quantum Yield',            desc:'Brightness — photons out / photon in', defEx:7, defIn:6 },
+  { key:'tox',   label:'Biocompatibility',          desc:'Safety for neural tissue', defEx:6, defIn:10 },
+  { key:'size',  label:'Size / BBB Penetration',   desc:'Smaller = better BBB crossing', defEx:4, defIn:9 },
+  { key:'photo', label:'Photostability',            desc:'Resistance to photobleaching', defEx:6, defIn:5 },
+  { key:'conj',  label:'Conjugation Ease',          desc:'Ease of antibody/peptide attachment', defEx:7, defIn:7 },
+];
+
+const BIOMARKERS = [
+  { id:'gfap',  name:'GFAP',        role:'Reactive Astrogliosis',    subfields:['ca1','ca3','ca4'], priority:'h',
+    desc:'Upregulated in sclerotic hippocampus. Anti-GFAP via EDC coupling to carboxyl-QDs. Key severity indicator.' },
+  { id:'neun',  name:'NeuN',        role:'Neuronal Density (CA1/CA3)',subfields:['ca1','ca2','ca3','ca4'], priority:'h',
+    desc:'Quantifies neuronal loss across subfields. Anti-NeuN QD labelling provides density maps for surgical planning.' },
+  { id:'npy',   name:'NPY',         role:'Mossy Fiber Sprouting',     subfields:['dg','ca3'], priority:'m',
+    desc:'Neuropeptide Y marks aberrant axonal growth into dentate gyrus — pathognomonic of MTS epileptogenesis.' },
+  { id:'prox1', name:'Prox1',       role:'Granule Cell Dispersion',   subfields:['dg'], priority:'m',
+    desc:'Ectopic granule cell migration out of the dentate layer. Well-characterised antibody conjugation.' },
+  { id:'iba1',  name:'Iba1',        role:'Neuroinflammation',         subfields:['ca1','ca3','ca4'], priority:'l',
+    desc:'Activated microglia contribute to seizure maintenance. Enables GFAP + Iba1 dual-colour panels.' },
+  { id:'mtor',  name:'mTOR / pS6', role:'Signalling Dysregulation',  subfields:['ca1','dg'], priority:'l',
+    desc:'mTOR hyperactivation in some MTS subtypes. Relevant for rapamycin-based QD therapeutic carriers.' },
+];
+
+const ILAE_TYPES = {
+  normal: { label:'Normal',           desc:'No sclerosis. Baseline reference.', sev:{ca1:0,ca2:0,ca3:0,ca4:0,dg:0,sub:0} },
+  '1a':   { label:'Type 1a (Classical)', desc:'Severe CA1 + CA4 loss with moderate CA3. Most common MTS subtype (~60% of surgical cases).', sev:{ca1:9,ca2:2,ca3:7,ca4:8,dg:5,sub:2} },
+  '1b':   { label:'Type 1b (CA1-dominant)', desc:'Severe CA1-predominant loss, moderate CA4. Often associated with longer epilepsy duration.', sev:{ca1:9,ca2:2,ca3:4,ca4:5,dg:3,sub:2} },
+  '2':    { label:'Type 2 (CA1 only)',  desc:'Isolated CA1 neuronal loss. Least severe. Good surgical outcome.', sev:{ca1:9,ca2:1,ca3:2,ca4:2,dg:2,sub:1} },
+  '3':    { label:'Type 3 (End folium)', desc:'Hilar/CA4-predominant sclerosis. Associated with febrile seizures.', sev:{ca1:3,ca2:1,ca3:2,ca4:9,dg:4,sub:1} },
+};
+
+const SF_INFO = {
+  ca1:  { name:'CA1',          desc:'Sommer sector — most vulnerable to hypoxia and MTS' },
+  ca2:  { name:'CA2',          desc:'Relatively resistant to MTS-related neuronal loss' },
+  ca3:  { name:'CA3',          desc:'Mossy fibre zone, moderately affected in classical MTS' },
+  ca4:  { name:'CA4 / Hilus',  desc:'Hilar interneurons, severely affected in Type 1a and 3' },
+  dg:   { name:'Dentate Gyrus',desc:'Site of mossy fibre sprouting and granule cell dispersion' },
+  sub:  { name:'Subiculum',    desc:'Transition to entorhinal cortex, relatively spared' },
+};
+
+// ──────────────────────────────────────────────────────────────────────────────
+// SHARED STATE
+// ──────────────────────────────────────────────────────────────────────────────
+const state = {
+  phase: 'p1',
+  mode: 'exvivo',
+  weights: {},
+  selectedQD: null,
+  mtsType: '1a',
+  subfieldSev: { ca1:9, ca2:2, ca3:7, ca4:8, dg:5, sub:2 },
+  p3QD: null,
+  activeSpectra: new Set(QDS.map(q=>q.id)),
+};
+
+// ──────────────────────────────────────────────────────────────────────────────
+// NAVIGATION
+// ──────────────────────────────────────────────────────────────────────────────
+function setPhase(id) {
+  state.phase = id;
+  document.querySelectorAll('.phase-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.phase-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.phase-tab').forEach(t=>{
+    if(t.getAttribute('onclick').includes(id)) t.classList.add('active');
+  });
+  if(id==='p2') renderP2();
+  if(id==='p3') { initP3(); renderP3Sidebar(); }
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// PHASE 1 — OPTIMIZER
+// ──────────────────────────────────────────────────────────────────────────────
+let p1RadarChart = null, p1BarChart = null, p1SpecChart = null;
+
+function initWeights() {
+  PARAMS.forEach(p => { state.weights[p.key] = state.mode==='exvivo' ? p.defEx : p.defIn; });
+}
+
+function setMode(mode) {
+  state.mode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('active', b.dataset.mode===mode));
+  initWeights();
+  buildP1Sliders();
+  updateP1();
+}
+
+function buildP1Sliders() {
+  const c = document.getElementById('p1sliders');
+  c.innerHTML = PARAMS.map(p=>`
+    <div class="param-row">
+      <div class="param-label">
+        <span class="param-name">${p.label}</span>
+        <span class="param-val" id="pv-${p.key}">${state.weights[p.key]}</span>
+      </div>
+      <div class="param-desc">${p.desc}</div>
+      <input type="range" min="0" max="10" value="${state.weights[p.key]}" oninput="onP1Slider('${p.key}',this.value)">
+    </div>`).join('');
+}
+
+function onP1Slider(key,val) {
+  state.weights[key]=parseInt(val);
+  document.getElementById('pv-'+key).textContent=val;
+  updateP1();
+}
+
+function p1Score(qd) {
+  const raw = {
+    em: qd[state.mode==='exvivo'?'exvivo':'invivo'].emScore,
+    qy: Math.round(qd.qy/10),
+    tox: qd.toxScore,
+    size: qd.sizePenalty,
+    photo: qd.photostab,
+    conj: qd.conjugation,
+  };
+  let w=0,tw=0;
+  PARAMS.forEach(p=>{ w+=raw[p.key]*state.weights[p.key]; tw+=state.weights[p.key]*10; });
+  return tw>0 ? Math.round(w/tw*100) : 0;
+}
+
+function p1RawScores(qd) {
+  return {
+    em: qd[state.mode==='exvivo'?'exvivo':'invivo'].emScore,
+    qy: Math.round(qd.qy/10),
+    tox: qd.toxScore,
+    size: qd.sizePenalty,
+    photo: qd.photostab,
+    conj: qd.conjugation,
+  };
+}
+
+function updateP1() {
+  const scored = QDS.map(q=>({...q,score:p1Score(q)})).sort((a,b)=>b.score-a.score);
+  renderP1Table(scored);
+  // Recommendation
+  const top=scored[0];
+  document.getElementById('p1recBanner').classList.add('visible');
+  document.getElementById('p1recText').innerHTML =
+    `<strong style="color:${top.color}">${top.name}</strong> scores highest (${top.score}/100) for <em>${state.mode==='exvivo'?'ex vivo tissue imaging':'in vivo diagnosis'}</em> — Peak ~${top.emPeak} nm · Toxicity: ${top.toxicity}`;
+  if(state.selectedQD) {
+    const sel=scored.find(q=>q.id===state.selectedQD);
+    if(sel) renderP1Detail(sel,scored);
+  }
+  renderP1Spectrum();
+}
+
+function renderP1Table(scored) {
+  const rnkClr=['#ffd700','#c0c0c0','#cd7f32'];
+  document.getElementById('p1rankBody').innerHTML = scored.map((qd,i)=>`
+    <tr onclick="selectP1QD('${qd.id}')" class="${state.selectedQD===qd.id?'selected':''}">
+      <td style="text-align:center;">
+        <div class="rank-num" style="background:${i<3?rnkClr[i]+'22':'transparent'};border:1px solid ${i<3?rnkClr[i]:'var(--border)'};color:${i<3?rnkClr[i]:'var(--muted)'};">${i+1}</div>
+      </td>
+      <td><div style="font-weight:600;color:${qd.color};">${qd.name}</div>
+          <div style="font-size:10px;color:var(--muted);">Peak ~${qd.emPeak} nm · ${qd.size}</div></td>
+      <td style="font-size:11px;color:var(--muted);">${qd.emRange}</td>
+      <td><span style="display:inline-flex;align-items:center;font-size:11px;"><span class="tox-dot" style="background:${qd.toxColor};"></span>${qd.toxicity}</span></td>
+      <td>
+        <div class="score-bar-wrap">
+          <div class="score-bar"><div class="score-bar-fill" style="width:${qd.score}%;background:${qd.color};"></div></div>
+          <div class="score-num" style="color:${qd.color};">${qd.score}</div>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function selectP1QD(id) {
+  state.selectedQD = state.selectedQD===id ? null : id;
+  if(state.p3QD===null || state.p3QD===id) state.p3QD = state.selectedQD;
+  const scored = QDS.map(q=>({...q,score:p1Score(q)})).sort((a,b)=>b.score-a.score);
+  renderP1Table(scored);
+  const panel=document.getElementById('p1detail');
+  if(!state.selectedQD){ panel.classList.remove('visible'); return; }
+  panel.classList.add('visible');
+  const sel=scored.find(q=>q.id===state.selectedQD);
+  renderP1Detail(sel,scored);
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function renderP1Detail(qd,scored) {
+  document.getElementById('p1detName').textContent=qd.name;
+  document.getElementById('p1notes').innerHTML=`<strong style="color:var(--text)">Analysis:</strong> ${qd.notes}`;
+  const raw=p1RawScores(qd);
+  document.getElementById('p1detStats').innerHTML=`
+    <div class="detail-stat"><div class="dval" style="color:${qd.color}">${qd.score}</div><div class="dlbl">Overall Score</div></div>
+    <div class="detail-stat"><div class="dval">${qd.qy}%</div><div class="dlbl">Quantum Yield</div></div>
+    <div class="detail-stat"><div class="dval">~${qd.emPeak} nm</div><div class="dlbl">Peak Emission</div></div>
+    <div class="detail-stat"><div class="dval">${qd.size}</div><div class="dlbl">Core Size</div></div>
+    <div class="detail-stat"><div class="dval" style="color:${qd.toxColor}">${qd.toxicity}</div><div class="dlbl">Toxicity</div></div>
+    <div class="detail-stat"><div class="dval">${scored.findIndex(q=>q.id===qd.id)+1}/${scored.length}</div><div class="dlbl">Rank</div></div>`;
+  renderP1Radar(qd,raw);
+  renderP1Bar(qd,scored);
+}
+
+function renderP1Radar(qd,raw) {
+  const ctx=document.getElementById('p1radar').getContext('2d');
+  if(p1RadarChart) p1RadarChart.destroy();
+  p1RadarChart=new Chart(ctx,{
+    type:'radar',
+    data:{labels:['Tissue\nWindow','Quantum\nYield','Biocompat.','Size/BBB','Photostab.','Conjugation'],
+      datasets:[{label:qd.short,data:[raw.em,raw.qy,raw.tox,raw.size,raw.photo,raw.conj],
+        backgroundColor:qd.color+'25',borderColor:qd.color,borderWidth:2,pointBackgroundColor:qd.color,pointRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{r:{min:0,max:10,ticks:{display:false},grid:{color:'rgba(48,54,61,.8)'},
+        angleLines:{color:'rgba(48,54,61,.8)'},pointLabels:{color:'#8b949e',font:{size:10}}}}}
+  });
+}
+
+function renderP1Bar(selQD,scored) {
+  const ctx=document.getElementById('p1bar').getContext('2d');
+  if(p1BarChart) p1BarChart.destroy();
+  p1BarChart=new Chart(ctx,{
+    type:'bar',
+    data:{labels:scored.map(q=>q.short),
+      datasets:[{data:scored.map(q=>q.score),
+        backgroundColor:scored.map(q=>q.id===selQD.id?q.color:q.color+'44'),
+        borderColor:scored.map(q=>q.id===selQD.id?q.color:'transparent'),
+        borderWidth:2,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{grid:{display:false},ticks:{color:'#8b949e',font:{size:9}}},
+        y:{min:0,max:100,grid:{color:'rgba(48,54,61,.5)'},ticks:{color:'#8b949e',font:{size:9}}}}}
+  });
+}
+
+function renderP1Spectrum() {
+  const wls=[]; for(let w=300;w<=1400;w+=5) wls.push(w);
+  const leg=document.getElementById('p1specLeg');
+  leg.innerHTML=QDS.map(q=>`
+    <div class="spec-item ${state.activeSpectra.has(q.id)?'active':''}" onclick="toggleSpec('${q.id}')" data-id="${q.id}">
+      <span class="spec-dot" style="background:${q.color}"></span>${q.short}
+    </div>`).join('');
+  const gaussian=(x,mu,s)=>Math.exp(-.5*Math.pow((x-mu)/s,2));
+  const nirShade=wls.map(w=>(w>=650&&w<=900)?1.05:0);
+  const ds=[{label:'NIR',data:nirShade,borderColor:'transparent',backgroundColor:'rgba(255,80,80,.07)',fill:true,pointRadius:0,tension:0,order:10}];
+  QDS.filter(q=>state.activeSpectra.has(q.id)).forEach(qd=>{
+    const sigma=(qd.emMax-qd.emMin)/5;
+    ds.push({label:qd.short,data:wls.map(w=>gaussian(w,qd.emPeak,sigma)),
+      borderColor:qd.color,backgroundColor:'transparent',borderWidth:2,pointRadius:0,tension:.4});
+  });
+  const ctx=document.getElementById('p1spec').getContext('2d');
+  if(p1SpecChart) p1SpecChart.destroy();
+  p1SpecChart=new Chart(ctx,{
+    type:'line',data:{labels:wls,datasets:ds},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{filter:i=>i.datasetIndex>0}},
+      scales:{x:{type:'linear',min:300,max:1300,ticks:{stepSize:100,color:'#8b949e',font:{size:9},callback:v=>v+'nm'},grid:{color:'rgba(48,54,61,.4)'}},
+        y:{min:0,max:1.1,display:false}}}
+  });
+}
+
+function toggleSpec(id) {
+  if(state.activeSpectra.has(id)){if(state.activeSpectra.size>1)state.activeSpectra.delete(id);}
+  else state.activeSpectra.add(id);
+  document.querySelectorAll('.spec-item').forEach(el=>el.classList.toggle('active',state.activeSpectra.has(el.dataset.id)));
+  renderP1Spectrum();
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// PHASE 2 — TARGETING STRATEGY
+// ──────────────────────────────────────────────────────────────────────────────
+const CHANNELS = [
+  { ch:1, qdId:'inp',   color:'#58a6ff', biomarker:'NeuN', role:'Neuronal Density Map',
+    desc:'Anti-NeuN antibody via EDC/NHS to carboxyl-InP/ZnS. Green channel (530 nm). Quantifies CA1/CA3/CA4 neuronal loss — primary severity indicator.',
+    tags:['Ex vivo','EDC/NHS','530 nm channel'] },
+  { ch:2, qdId:'cuins', color:'#d29922', biomarker:'GFAP', role:'Reactive Astrogliosis',
+    desc:'Anti-GFAP antibody to CuInS₂/ZnS. Orange-NIR channel (720 nm). Co-labels simultaneously with Channel 1 — no spectral overlap.',
+    tags:['Ex vivo','EDC/NHS','720 nm channel'] },
+  { ch:3, qdId:'si',    color:'#a5d6ff', biomarker:'NPY / Prox1', role:'Mossy Fiber Sprouting + GCD',
+    desc:'Anti-NPY + Anti-Prox1 dual-conjugated Si QDs. Far-red channel (~700 nm, resolvable from Ch.2). Identifies epileptogenic sprouting in dentate gyrus.',
+    tags:['Ex vivo','Streptavidin-biotin','700 nm channel'] },
+  { ch:4, qdId:'ag2s',  color:'#c0c0c0', biomarker:'RVG-29 peptide', role:'In Vivo BBB Targeting (Future)',
+    desc:'RVG-29 peptide conjugated to PEG-Ag₂S via thiol-maleimide. NIR-II channel (1000 nm). Systemic injection → hippocampal homing for in vivo fluorescence imaging.',
+    tags:['In vivo','Thiol-maleimide','NIR-II · 1000 nm','Requires InGaAs detector'] },
+];
+
+function renderP2() {
+  // QD summary
+  const sel = state.selectedQD ? QDS.find(q=>q.id===state.selectedQD) : null;
+  const summCard=document.getElementById('p2qdSummary');
+  const noSel=document.getElementById('p2noSel');
+  if(sel) {
+    summCard.style.display='block'; noSel.style.display='none';
+    document.getElementById('p2qdName').textContent=sel.name;
+    document.getElementById('p2qdName').style.color=sel.color;
+    document.getElementById('p2qdSub').textContent=`${sel.emRange} · QY ${sel.qy}% · Toxicity: ${sel.toxicity} · ${sel.size}`;
+    const scored=QDS.map(q=>({...q,score:p1Score(q)})).sort((a,b)=>b.score-a.score);
+    const rank=scored.findIndex(q=>q.id===sel.id)+1;
+    document.getElementById('p2qdStats').innerHTML=`
+      <div style="font-size:11px;color:var(--muted);border:1px solid var(--border);border-radius:5px;padding:4px 10px;">Rank <strong style="color:${sel.color}">#${rank}</strong> / ${QDS.length}</div>
+      <div style="font-size:11px;color:var(--muted);border:1px solid var(--border);border-radius:5px;padding:4px 10px;">Score <strong style="color:${sel.color}">${scored[rank-1].score}/100</strong></div>
+      <div style="font-size:11px;color:var(--muted);border:1px solid var(--border);border-radius:5px;padding:4px 10px;">Mode: <strong style="color:var(--text)">${state.mode==='exvivo'?'Ex Vivo':'In Vivo'}</strong></div>`;
+  } else {
+    summCard.style.display='none'; noSel.style.display='block';
+  }
+
+  // Multi-colour channels
+  document.getElementById('p2channels').innerHTML = CHANNELS.map(ch=>{
+    const qdObj=QDS.find(q=>q.id===ch.qdId);
+    const isSelected = state.selectedQD===ch.qdId;
+    return `<div class="channel-row" style="${isSelected?'border-color:'+qdObj.color+';background:rgba(88,166,255,.04);':''}">
+      <div class="ch-num" style="background:${qdObj.color}22;border:1px solid ${qdObj.color}66;color:${qdObj.color};">${ch.ch}</div>
+      <div class="ch-body">
+        <div class="ch-title" style="color:${qdObj.color};">${qdObj.name} → ${ch.biomarker}</div>
+        <div class="ch-sub">${ch.role}</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:7px;line-height:1.5;">${ch.desc}</div>
+        <div class="ch-tags">${ch.tags.map(t=>`<span class="ch-tag" style="background:${qdObj.color}18;color:${qdObj.color};border:1px solid ${qdObj.color}44;">${t}</span>`).join('')}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Biomarkers
+  const priMap={'h':'tag-h High priority','m':'tag-m Medium priority','l':'tag-l Supplementary'};
+  document.getElementById('p2biomarkers').innerHTML=BIOMARKERS.map(bm=>`
+    <div class="target-card">
+      <div class="mk-name">${bm.name}</div>
+      <div class="mk-role">${bm.role}</div>
+      <div class="mk-desc">${bm.desc}</div>
+      <span class="tag ${priMap[bm.priority].split(' ')[0]}">${priMap[bm.priority].split(' ').slice(1).join(' ')}</span>
+    </div>`).join('');
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// PHASE 3 — THREE.JS HIPPOCAMPAL MODEL
+// ──────────────────────────────────────────────────────────────────────────────
+let threeReady=false, p3Renderer, p3Scene, p3Camera, p3HippGroup;
+let p3Particles={}, p3Labels=[], p3AnimId;
+let p3Mouse={isDragging:false,px:0,py:0,rotX:0.25,rotY:-0.2};
+let p3Zoom=10;
+
+function toRad(d){return d*Math.PI/180;}
+
+function severityColor3(s) {
+  // 0 → green, 5 → amber, 10 → red
+  const t=s/10;
+  if(t<.5){
+    const u=t*2;
+    return new THREE.Color((63+(210-63)*u)/255,(185+(153-185)*u)/255,(80+(34-80)*u)/255);
+  } else {
+    const u=(t-.5)*2;
+    return new THREE.Color((210+(248-210)*u)/255,(153+(81-153)*u)/255,(34+(73-34)*u)/255);
+  }
+}
+
+function severityHex(s) {
+  const t=s/10;
+  if(t<.5){const u=t*2;const r=Math.round(63+(210-63)*u),g=Math.round(185+(153-185)*u),b=Math.round(80+(34-80)*u);return `rgb(${r},${g},${b})`;}
+  else{const u=(t-.5)*2;const r=Math.round(210+(248-210)*u),g=Math.round(153+(81-153)*u),b=Math.round(34+(73-34)*u);return `rgb(${r},${g},${b})`;}
+}
+
+function makeSectorGeo(cx,cy,innerR,outerR,t0,t1,depth) {
+  if(t1<=t0) t1+=Math.PI*2;
+  const segs=48, shape=new THREE.Shape();
+  shape.moveTo(cx+outerR*Math.cos(t0), cy+outerR*Math.sin(t0));
+  for(let i=1;i<=segs;i++){const t=t0+(t1-t0)*i/segs; shape.lineTo(cx+outerR*Math.cos(t),cy+outerR*Math.sin(t));}
+  shape.lineTo(cx+innerR*Math.cos(t1), cy+innerR*Math.sin(t1));
+  for(let i=segs-1;i>=0;i--){const t=t0+(t1-t0)*i/segs; shape.lineTo(cx+innerR*Math.cos(t),cy+innerR*Math.sin(t));}
+  shape.closePath();
+  return new THREE.ExtrudeGeometry(shape,{depth,bevelEnabled:true,bevelThickness:.03,bevelSize:.03,bevelSegments:2});
+}
+
+function makeCircleGeo(cx,cy,r,depth) {
+  const shape=new THREE.Shape();
+  shape.absarc(cx,cy,r,0,Math.PI*2,false);
+  return new THREE.ExtrudeGeometry(shape,{depth,bevelEnabled:true,bevelThickness:.03,bevelSize:.03,bevelSegments:2});
+}
+
+const SF_GEOS = {
+  sub:  ()=>makeSectorGeo(0,0,1.35,2.15,toRad(345),toRad(18),0.58),
+  ca1:  ()=>makeSectorGeo(0,0,1.35,2.15,toRad(18),toRad(198),0.58),
+  ca2:  ()=>makeSectorGeo(0,0,1.35,2.15,toRad(198),toRad(222),0.58),
+  ca3:  ()=>makeSectorGeo(0,0,1.35,2.15,toRad(222),toRad(345),0.58),
+  dg:   ()=>makeSectorGeo(0.38,0,0.5,1.08,toRad(55),toRad(305),0.58),
+  ca4:  ()=>makeCircleGeo(0.38,0,0.44,0.6),
+};
+
+const LABEL_POS = {
+  sub:  {x:1.78, y:0.31, z:0.29},
+  ca1:  {x:-0.56,y:1.65, z:0.29},
+  ca2:  {x:-1.58,y:-0.77,z:0.29},
+  ca3:  {x:-0.08,y:-1.80,z:0.29},
+  dg:   {x:-0.32,y:0.15, z:0.29},
+  ca4:  {x:0.38,  y:0,   z:0.29},
+};
+
+function initP3() {
+  if(threeReady) return;
+  threeReady=true;
+
+  const wrap=document.getElementById('threeWrap');
+  const W=wrap.clientWidth, H=wrap.clientHeight;
+
+  p3Scene=new THREE.Scene();
+  p3Camera=new THREE.PerspectiveCamera(42,W/H,0.1,100);
+  p3Camera.position.set(0,0,p3Zoom);
+
+  p3Renderer=new THREE.WebGLRenderer({canvas:document.getElementById('threeCanvas'),antialias:true,alpha:true});
+  p3Renderer.setSize(W,H);
+  p3Renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  p3Renderer.setClearColor(0x060c14,1);
+
+  p3Scene.add(new THREE.AmbientLight(0xffffff,0.45));
+  const dl1=new THREE.DirectionalLight(0xffffff,0.85); dl1.position.set(4,5,6); p3Scene.add(dl1);
+  const dl2=new THREE.DirectionalLight(0x4488ff,0.3); dl2.position.set(-4,-3,-5); p3Scene.add(dl2);
+  const dl3=new THREE.DirectionalLight(0xffaa44,0.2); dl3.position.set(0,4,-4); p3Scene.add(dl3);
+
+  // Subtle background brain hint
+  const brainGeo=new THREE.SphereGeometry(3.5,32,32);
+  const brainMat=new THREE.MeshPhongMaterial({color:0x1a2233,transparent:true,opacity:0.18,side:THREE.BackSide});
+  p3Scene.add(new THREE.Mesh(brainGeo,brainMat));
+
+  p3HippGroup=new THREE.Group();
+  buildP3Hippocampus();
+  p3HippGroup.rotation.x=p3Mouse.rotX;
+  p3HippGroup.rotation.y=p3Mouse.rotY;
+  p3Scene.add(p3HippGroup);
+
+  // Mouse orbit
+  const canvas=document.getElementById('threeCanvas');
+  canvas.addEventListener('mousedown',e=>{p3Mouse.isDragging=true;p3Mouse.px=e.clientX;p3Mouse.py=e.clientY;});
+  window.addEventListener('mouseup',()=>{p3Mouse.isDragging=false;});
+  window.addEventListener('mousemove',e=>{
+    if(!p3Mouse.isDragging||state.phase!=='p3') return;
+    const dx=e.clientX-p3Mouse.px, dy=e.clientY-p3Mouse.py;
+    p3Mouse.rotY+=dx*.008; p3Mouse.rotX+=dy*.008;
+    p3HippGroup.rotation.y=p3Mouse.rotY; p3HippGroup.rotation.x=p3Mouse.rotX;
+    p3Mouse.px=e.clientX; p3Mouse.py=e.clientY;
+  });
+  canvas.addEventListener('wheel',e=>{
+    p3Zoom=Math.max(5,Math.min(18,p3Zoom+e.deltaY*.01));
+    p3Camera.position.z=p3Zoom;
+  },{passive:true});
+
+  // Touch support
+  let lastTouchX=0,lastTouchY=0;
+  canvas.addEventListener('touchstart',e=>{p3Mouse.isDragging=true;lastTouchX=e.touches[0].clientX;lastTouchY=e.touches[0].clientY;});
+  canvas.addEventListener('touchend',()=>{p3Mouse.isDragging=false;});
+  canvas.addEventListener('touchmove',e=>{
+    if(!p3Mouse.isDragging) return;
+    const dx=e.touches[0].clientX-lastTouchX, dy=e.touches[0].clientY-lastTouchY;
+    p3Mouse.rotY+=dx*.01; p3Mouse.rotX+=dy*.01;
+    p3HippGroup.rotation.y=p3Mouse.rotY; p3HippGroup.rotation.x=p3Mouse.rotX;
+    lastTouchX=e.touches[0].clientX; lastTouchY=e.touches[0].clientY;
+  },{passive:true});
+
+  window.addEventListener('resize',()=>{
+    const W=wrap.clientWidth,H=wrap.clientHeight;
+    p3Renderer.setSize(W,H);
+    p3Camera.aspect=W/H; p3Camera.updateProjectionMatrix();
+  });
+
+  p3AnimLoop();
+}
+
+function buildP3Hippocampus() {
+  while(p3HippGroup.children.length) p3HippGroup.remove(p3HippGroup.children[0]);
+  p3Particles={};
+  p3Labels=[];
+
+  Object.entries(SF_GEOS).forEach(([id,geoFn])=>{
+    const sev=state.subfieldSev[id];
+    const geo=geoFn();
+    const col=severityColor3(sev);
+    const mat=new THREE.MeshPhongMaterial({
+      color:col, shininess:50,
+      emissive:new THREE.Color(col).multiplyScalar(0.12),
+      transparent:true, opacity:0.92,
+    });
+    const mesh=new THREE.Mesh(geo,mat);
+    if(id==='ca4') mesh.position.z=0.02;
+    mesh.userData={id};
+    p3HippGroup.add(mesh);
+    const eGeo=new THREE.EdgesGeometry(geo,15);
+    const eLine=new THREE.LineSegments(eGeo,new THREE.LineBasicMaterial({color:0x060c14,transparent:true,opacity:0.4}));
+    if(id==='ca4') eLine.position.z=0.02;
+    p3HippGroup.add(eLine);
+    const lp=LABEL_POS[id];
+    p3Labels.push({id,lp:new THREE.Vector3(lp.x,lp.y,lp.z),sev});
+  });
+
+  // Rebuild QD overlay if one is selected
+  if(state.p3QD) addQDParticles(state.p3QD);
+  updateP3Labels();
+  renderP3Sidebar();
+}
+
+function addQDParticles(qdId) {
+  // Remove old particles
+  Object.values(p3Particles).forEach(pts=>p3HippGroup.remove(pts));
+  p3Particles={};
+
+  if(!qdId) return;
+  const qd=QDS.find(q=>q.id===qdId);
+  if(!qd) return;
+
+  // Find which biomarkers this QD maps to (via channel)
+  const ch=CHANNELS.find(c=>c.qdId===qdId);
+  const targetSubfields = ch
+    ? [...new Set(BIOMARKERS.filter(bm=>ch.biomarker.includes(bm.name)||bm.name.includes(ch.biomarker.split('/')[0].trim())).flatMap(bm=>bm.subfields))]
+    : Object.keys(SF_GEOS);
+
+  targetSubfields.forEach(sfId=>{
+    const sev=state.subfieldSev[sfId];
+    if(sev<2) return; // Only show on affected areas
+    const count=Math.round(40+sev*25);
+    const positions=[];
+    const lp=LABEL_POS[sfId];
+    const spread=sfId==='ca4'?0.35:0.7;
+    for(let i=0;i<count;i++){
+      positions.push(
+        lp.x+(Math.random()-.5)*spread*2,
+        lp.y+(Math.random()-.5)*spread*2,
+        lp.z+(Math.random()-.5)*0.5
+      );
+    }
+    const geo=new THREE.BufferGeometry();
+    geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+    const mat=new THREE.PointsMaterial({
+      color:new THREE.Color(qd.color),
+      size:0.065, transparent:true, opacity:0.75,
+      blending:THREE.AdditiveBlending, depthWrite:false,
+    });
+    const pts=new THREE.Points(geo,mat);
+    pts.userData.basePositions=[...positions];
+    p3Particles[sfId]=pts;
+    p3HippGroup.add(pts);
+  });
+}
+
+function p3AnimLoop() {
+  p3AnimId=requestAnimationFrame(p3AnimLoop);
+  if(state.phase!=='p3') return;
+  const t=Date.now()*.001;
+  // Animate particles
+  Object.values(p3Particles).forEach(pts=>{
+    const pos=pts.geometry.attributes.position.array;
+    const base=pts.userData.basePositions;
+    for(let i=0;i<pos.length;i+=3){
+      pos[i]  =base[i]  +Math.sin(t*1.2+base[i+1]*8)*.025;
+      pos[i+1]=base[i+1]+Math.cos(t*0.9+base[i]*7)*.025;
+      pos[i+2]=base[i+2]+Math.sin(t*1.5+base[i]*5)*.015;
+    }
+    pts.geometry.attributes.position.needsUpdate=true;
+  });
+  p3Renderer.render(p3Scene,p3Camera);
+  updateP3Labels();
+}
+
+function updateP3Labels() {
+  const wrap=document.getElementById('threeWrap');
+  const W=wrap.clientWidth, H=wrap.clientHeight;
+  const overlay=document.getElementById('threeOverlay');
+  overlay.innerHTML='';
+  p3Labels.forEach(({id,lp,sev})=>{
+    const v=lp.clone().applyMatrix4(p3HippGroup.matrixWorld);
+    v.project(p3Camera);
+    const x=(v.x+1)/2*W, y=-(v.y-1)/2*H;
+    if(x<-60||x>W+60||y<-20||y>H+20) return;
+    const isActive=state.p3QD&&Object.keys(p3Particles).includes(id);
+    const el=document.createElement('div');
+    el.className='three-label'+(isActive?' highlighted':'');
+    el.style.left=x+'px'; el.style.top=y+'px';
+    el.innerHTML=`<span class="sev-dot" style="background:${severityHex(sev)};"></span>${SF_INFO[id].name}`;
+    overlay.appendChild(el);
+  });
+}
+
+function renderP3Sidebar() {
+  // ILAE buttons
+  document.getElementById('ilaeButtons').innerHTML=Object.entries(ILAE_TYPES).map(([k,v])=>`
+    <button class="ilae-btn ${state.mtsType===k?'active':''}" onclick="setMTSType('${k}')">${v.label.split('(')[0].trim()}</button>`).join('');
+  document.getElementById('ilaeDesc').textContent=ILAE_TYPES[state.mtsType].desc;
+
+  // Subfield sliders
+  document.getElementById('sfSliders').innerHTML=Object.entries(SF_INFO).map(([id,info])=>{
+    const s=state.subfieldSev[id];
+    return `<div class="sf-row">
+      <div class="sf-label-row">
+        <span class="sf-name" style="color:${severityHex(s)};">${info.name}</span>
+        <span class="sf-sev" style="background:${severityHex(s)}22;color:${severityHex(s)};border:1px solid ${severityHex(s)}55;">
+          ${s===0?'Normal':s<4?'Mild':s<7?'Moderate':s<9?'Severe':'Critical'} (${s})
+        </span>
+      </div>
+      <input type="range" class="sf-slider" min="0" max="10" value="${s}" oninput="onSFSlider('${id}',this.value)">
+    </div>`;}).join('');
+
+  // QD chips
+  document.getElementById('p3qdList').innerHTML=QDS.map(qd=>`
+    <div class="qd-chip ${state.p3QD===qd.id?'active':''}" onclick="setP3QD('${qd.id}')">
+      <span class="qd-chip-dot" style="background:${qd.color};"></span>
+      <span class="qd-chip-name" style="color:${state.p3QD===qd.id?qd.color:'var(--text)'};">${qd.short}</span>
+      <span class="qd-chip-em">~${qd.emPeak}nm</span>
+    </div>`).join('');
+
+  // Diagnostic readout
+  const sevLabels=['Normal','Mild','Mild','Moderate','Moderate','Moderate','Severe','Severe','Critical','Critical','Critical'];
+  const sevColors=['#3fb950','#5bc469','#7fcf73','#c8a022','#d29922','#dc9010','#e86b20','#f85149','#ff3333','#ff1a1a','#ff0000'];
+  document.getElementById('diagReadout').innerHTML=Object.entries(SF_INFO).map(([id,info])=>{
+    const s=state.subfieldSev[id];
+    return `<div class="diag-row">
+      <span class="diag-sf">${info.name}</span>
+      <span class="diag-badge" style="background:${sevColors[s]}22;color:${sevColors[s]};border:1px solid ${sevColors[s]}44;">${sevLabels[s]}</span>
+    </div>`;}).join('');
+}
+
+function setMTSType(key) {
+  state.mtsType=key;
+  state.subfieldSev={...ILAE_TYPES[key].sev};
+  buildP3Hippocampus();
+}
+
+function onSFSlider(id,val) {
+  state.subfieldSev[id]=parseInt(val);
+  state.mtsType='custom';
+  // Update just that mesh colour
+  p3HippGroup.children.forEach(child=>{
+    if(child instanceof THREE.Mesh && child.userData.id===id) {
+      const c=severityColor3(parseInt(val));
+      child.material.color=c;
+      child.material.emissive=new THREE.Color(c).multiplyScalar(0.12);
+      child.material.needsUpdate=true;
+    }
+  });
+  // Update label
+  const lbl=p3Labels.find(l=>l.id===id);
+  if(lbl) lbl.sev=parseInt(val);
+  renderP3Sidebar();
+  updateP3Labels();
+}
+
+function setP3QD(qdId) {
+  state.p3QD = state.p3QD===qdId ? null : qdId;
+  addQDParticles(state.p3QD);
+  renderP3Sidebar();
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// INIT
+// ──────────────────────────────────────────────────────────────────────────────
+initWeights();
+buildP1Sliders();
+updateP1();
+
+// Populate P2 biomarkers statically
+const priMap2={'h':'tag-h High priority','m':'tag-m Medium priority','l':'tag-l Supplementary'};
+document.getElementById('p2biomarkers').innerHTML=BIOMARKERS.map(bm=>`
+  <div class="target-card">
+    <div class="mk-name">${bm.name}</div>
+    <div class="mk-role">${bm.role}</div>
+    <div class="mk-desc">${bm.desc}</div>
+    <span class="tag ${priMap2[bm.priority].split(' ')[0]}">${priMap2[bm.priority].split(' ').slice(1).join(' ')}</span>
+  </div>`).join('');
+
+// Pre-render P2 channels (static)
+document.getElementById('p2channels').innerHTML=CHANNELS.map(ch=>{
+  const qdObj=QDS.find(q=>q.id===ch.qdId);
+  return `<div class="channel-row">
+    <div class="ch-num" style="background:${qdObj.color}22;border:1px solid ${qdObj.color}66;color:${qdObj.color};">${ch.ch}</div>
+    <div class="ch-body">
+      <div class="ch-title" style="color:${qdObj.color};">${qdObj.name} → ${ch.biomarker}</div>
+      <div class="ch-sub">${ch.role}</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:7px;line-height:1.5;">${ch.desc}</div>
+      <div class="ch-tags">${ch.tags.map(t=>`<span class="ch-tag" style="background:${qdObj.color}18;color:${qdObj.color};border:1px solid ${qdObj.color}44;">${t}</span>`).join('')}</div>
+    </div>
+  </div>`;}).join('');
+</script>
+</body>
+</html>
