@@ -4,7 +4,7 @@
 
 An interactive computational research platform exploring how engineered quantum dot nanoparticles could enable multi-channel molecular imaging across different diseases. Built around a shared three-phase engine — material selection, targeting strategy, 3D visualization — that plugs into disease-specific modules.
 
-[![Project Screenshot](https://github.com/DhrithiAlex/qd-mts-research-platform/raw/main/Media/Repo.png)](Media/Repo.png)
+[![Project Screenshot](https://github.com/DhrithiAlex/qd-mts-research-platform/raw/main/Media/repo_updated.png)](Media/repo_updated.png)
 
 ## 🎯 Overview
 
