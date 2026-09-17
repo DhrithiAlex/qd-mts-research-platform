@@ -53,7 +53,7 @@ This platform began as a single-disease prototype for **Mesial Temporal Sclerosi
 ## 📚 Research Documentation
 
 - **[RESEARCH.md](Research/RESEARCH.md)** — scientific rationale, biomarker details, and methodology for both modules.
-- **QD_Research_Platform_Explained.pdf** *(add to `/Research`)* — a comprehensive, plain-language guide to the whole platform: how quantum dots work, the shared architecture, both disease modules in full detail, safety considerations, and limitations — written to be clear to readers with no nanotechnology background as well as domain experts.
+- **[QD_Research_Platform_Explained.pdf](Research/QD_Research_Platform_Explained.pdf)** — a comprehensive, plain-language guide to the whole platform: how quantum dots work, the shared architecture, both disease modules in full detail, safety considerations, and limitations — written to be clear to readers with no nanotechnology background as well as domain experts.
 
 ## 🛠️ Tech Stack
 
@@ -76,18 +76,16 @@ This platform began as a single-disease prototype for **Mesial Temporal Sclerosi
 
 ## 🎨 Gallery
 
-### Project Screenshots
+### Neurology (MTS) Module
 
 [![Hippocampus Simulator](https://github.com/DhrithiAlex/qd-mts-research-platform/raw/main/Media/Hippocampus_Simulated.png)](Media/Hippocampus_Simulated.png)
 [![Material Optimizer](https://github.com/DhrithiAlex/qd-mts-research-platform/raw/main/Media/Material_Optimizer.png)](Media/Material_Optimizer.png)
 [![Targeting Strategy](https://github.com/DhrithiAlex/qd-mts-research-platform/raw/main/Media/Targeting_Strategy.png)](Media/Targeting_Strategy.png)
-[![Oncology Targeting](https://github.com/DhrithiAlex/qd-mts-research-platform/raw/main/Media/Oncology_2.png)](Media/Oncology_2.png)
-[![Tumor 3D Model](https://github.com/DhrithiAlex/qd-mts-research-platform/raw/main/Media/Oncology_1.png)](Media/Oncology_1.png)
 
-<!-- Add Oncology-module screenshots here once captured, e.g.:
-[![Tumor 3D Model](Media/Tumor_Model.png)](Media/Tumor_Model.png)
-[![Oncology Targeting](Media/Oncology_Targeting.png)](Media/Oncology_Targeting.png)
--->
+### Oncology Module
+
+[![Oncology Module View 1](https://github.com/DhrithiAlex/qd-mts-research-platform/raw/main/Media/Oncology_1.png)](Media/Oncology_1.png)
+[![Oncology Module View 2](https://github.com/DhrithiAlex/qd-mts-research-platform/raw/main/Media/Oncology_2.png)](Media/Oncology_2.png)
 
 ## 🔮 Roadmap
 
