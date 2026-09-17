@@ -81,6 +81,8 @@ This platform began as a single-disease prototype for **Mesial Temporal Sclerosi
 [![Hippocampus Simulator](https://github.com/DhrithiAlex/qd-mts-research-platform/raw/main/Media/Hippocampus_Simulated.png)](Media/Hippocampus_Simulated.png)
 [![Material Optimizer](https://github.com/DhrithiAlex/qd-mts-research-platform/raw/main/Media/Material_Optimizer.png)](Media/Material_Optimizer.png)
 [![Targeting Strategy](https://github.com/DhrithiAlex/qd-mts-research-platform/raw/main/Media/Targeting_Strategy.png)](Media/Targeting_Strategy.png)
+[![Oncology Targeting](https://github.com/DhrithiAlex/qd-mts-research-platform/raw/main/Media/Oncology_2.png)](Media/Oncology_2.png)
+[![Tumor 3D Model](https://github.com/DhrithiAlex/qd-mts-research-platform/raw/main/Media/Oncology_1.png)](Media/Oncology_1.png)
 
 <!-- Add Oncology-module screenshots here once captured, e.g.:
 [![Tumor 3D Model](Media/Tumor_Model.png)](Media/Tumor_Model.png)
